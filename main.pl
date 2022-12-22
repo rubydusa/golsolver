@@ -1,7 +1,5 @@
 :- use_module(library(clpfd)).
-
-:- consult('data_gen.pl').
-:- consult('grid_op.pl').
+:- use_module("ndarray").
 
 cell_eval(Sum, Val, NextVal) :-
     Val in 0..1,
@@ -9,19 +7,19 @@ cell_eval(Sum, Val, NextVal) :-
 	NextVal #<==> Sum #= 3 #\/ (Val #= 1 #/\ Sum #= 2).
 
 gol(Grid, NextGrid, W, H) :-
-    grid(Grid, W, H),
-	grid(NextGrid, W, H),
+	ndarray(Grid, [W, H]),
+	ndarray(NextGrid, [W, H]),
     
-   	shift_right(Grid, Grid0),
-    shift_up(Grid, Grid1),
-    shift_left(Grid, Grid2),
-    shift_down(Grid, Grid3),
-    shift_right(Grid1, Grid4),
-    shift_up(Grid2, Grid5),
-    shift_left(Grid3, Grid6),
-    shift_down(Grid0, Grid7),
+	shift_ndarray([0, +(1)], Grid, Grid0),
+	shift_ndarray([+(1), +(1)], Grid, Grid1),
+	shift_ndarray([+(1), 0], Grid, Grid2),
+	shift_ndarray([+(1), -(1)], Grid, Grid3),
+	shift_ndarray([0, -(1)], Grid, Grid4),
+	shift_ndarray([-(1), -(1)], Grid, Grid5),
+	shift_ndarray([-(1), 0], Grid, Grid6),
+	shift_ndarray([-(1), +(1)], Grid, Grid7),
     
-    grid_sum([Grid0, Grid1, Grid2, Grid3, Grid4, Grid5, Grid6, Grid7], GridSum),
+    ndarray_add([Grid0, Grid1, Grid2, Grid3, Grid4, Grid5, Grid6, Grid7], GridSum),
     maplist(maplist(cell_eval), GridSum, Grid, NextGrid).
 
 gol_iter(0, Grid, Grid, _, _).
